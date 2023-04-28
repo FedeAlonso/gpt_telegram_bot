@@ -1,0 +1,19 @@
+{
+    "prompt_file_path": "resources/prompt.txt",
+    "output_folder": "_output",
+    "allowed_users": [3281873],
+    "texts": {
+        "greetings": "Hi {}, I'm your assistant. How can I help you?",
+        "not_allowed": "Sorry, your user is not registered.",
+        "cancel_text" : "Thank you for using the service. Start over by using /start"
+    },
+    "gpt_config": {
+        "model" :"text-davinci-003",
+        "temperature" :0.9,
+        "max_tokens" :150,
+        "top_p" :1,
+        "frequency_penalty" :0.0,
+        "presence_penalty" :0.6,
+        "stop" :[" Client:", " Assistant:"]
+    }
+}

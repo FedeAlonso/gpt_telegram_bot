@@ -15,18 +15,22 @@ from telegram.ext import (
 )
 
 
-# Load config and configure logging
+# Load config 
 CONFIG_FILE = "resources/config.json"
 CONFIG = None
 with open(CONFIG_FILE) as f:
         CONFIG = json.loads(f.read())
+
+if not os.path.exists(CONFIG.get("output_folder")):
+    os.makedirs(output_folder)
+
+# Configure Logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", 
+    level=logging.INFO, 
+    filename=os.path.join(CONFIG.get("output_folder"), "gpt_telegram_bot.log")
 )
 logger = logging.getLogger(__name__)
-#TODO: Sacar el config Aquí y el output y todo
-
-
 
 NOT_ALLOWED_USER, CHAT = range(2)
 
@@ -35,22 +39,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """
     Entry point
     """
-    output_folder = CONFIG.get("output_folder")
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
     user = update.message.from_user
-    # Set a log file per user
-    logging.basicConfig(filename = f'{os.path.join(output_folder, str(user["id"]))}.log')
     
     logger.info(f"Started conversation from user: '{user['first_name']}' with username '{user['username']}' and id '{user['id']}'")
     context.user_data["user"] = user
 
+    # Manage if the user is not allowed to use the platform
     if update.message.from_user.id not in CONFIG.get("allowed_users", []):
         logger.info(f"User '{user['id']}' not allowed!")
         await update.message.reply_text(f"User '{user['id']}' not allowed!", reply_markup=ReplyKeyboardRemove())
         return NOT_ALLOWED_USER
-        
+    
+    # Greet the user
     greetings = CONFIG.get("texts").get("greetings").format(user['first_name'])
     
     # Load the initial prompt
@@ -71,7 +71,6 @@ async def receive_not_allowed_user(update: Update, context: ContextTypes.DEFAULT
     """
     Filter allowed users
     """
-    #TODO: This is not working properly. It filters the users but don't write the message
     await update.message.reply_text(CONFIG.get("texts").get("not_allowed"), reply_markup=ReplyKeyboardRemove())
     return NOT_ALLOWED_USER
     
@@ -121,7 +120,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     logger.info("User %s canceled the conversation.", user.first_name)
     await update.message.reply_text(
-        CONFIG.get("texts").get("restart_text"), reply_markup=ReplyKeyboardRemove()
+        CONFIG.get("texts").get("cancel_text"), reply_markup=ReplyKeyboardRemove()
     )
     return ConversationHandler.END
 
