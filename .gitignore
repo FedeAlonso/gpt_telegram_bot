@@ -161,3 +161,4 @@ cython_debug/
 
 /resources/prompt.txt
 /resources/config.json
+_output/
