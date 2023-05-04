@@ -2,6 +2,8 @@ import logging
 import os
 import openai
 import json
+import time
+from logging.handlers import RotatingFileHandler
 from unidecode import unidecode
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.constants import ParseMode
@@ -26,9 +28,13 @@ if not os.path.exists(CONFIG.get("output_folder")):
 
 # Configure Logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", 
-    level=logging.INFO, 
-    filename=os.path.join(CONFIG.get("output_folder"), "gpt_telegram_bot.log")
+    handlers=[RotatingFileHandler(
+                os.path.join(CONFIG.get("output_folder"), "gpt_telegram_bot.log"), 
+                maxBytes=20000000, 
+                backupCount=1000)],
+    format="[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+    datefmt='%Y-%m-%dT%H:%M:%S',
+    level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
 
